@@ -1,3 +1,7 @@
+
+Use SneezePharma;
+GO
+
 CREATE TRIGGER ValidarVendaMedicamento
 ON VendasMedicamentos
 INSTEAD OF INSERT
@@ -32,9 +36,80 @@ BEGIN
 	INSERT INTO VendasMedicamentos (DataVenda, ValorTotal, IdCliente)
 	SELECT DataVenda, NULL, IdCliente
 	FROM inserted;
+
+	UPDATE c
+	SET c.DataUltimaCompra = GETDATE()
+	FROM Clientes c
+	JOIN inserted i
+	ON c.Id = i.IdCliente;
+
 END;
- 
-DROP TRIGGER ValidarVendaMedicamento;
+GO
+
+CREATE TRIGGER ValidarItensVendas
+ON ItensVendas
+INSTEAD OF INSERT
+AS 
+BEGIN
+	SET NOCOUNT ON;
+
+	IF EXISTS (
+		SELECT 1
+		FROM inserted i
+		JOIN Medicamentos m
+		ON i.CDBMedicamento = m.CDB
+		LEFT JOIN Producoes p
+		ON p.CDBMedicamento = m.CDB
+		WHERE m.Situacao = 'I' OR p.CDBMedicamento IS NULL
+	)
+	BEGIN
+		THROW 50017, 'Medicamento está inativo ou ainda não foi produzido!', 16;
+	END
+
+	IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        WHERE (SELECT COUNT(*) 
+               FROM ItensVendas iv
+               WHERE i.IdVenda = iv.IdVenda) >= 3
+    )
+    BEGIN
+        THROW 50020, 'Cada venda só pode ter até 3 registros de medicamentos!', 16;
+	
+	END
+
+	-- insere na tabela ItensVendas
+	INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento)
+	SELECT Quantidade, IdVenda, CDBMedicamento
+	FROM inserted;
+
+	-- atualiza ValorTotal do ItensVendas
+	UPDATE iv
+	SET iv.ValorTotal = m.ValorVenda * iv.Quantidade
+	FROM ItensVendas iv
+	INNER JOIN inserted i 
+    ON iv.IdVenda = i.IdVenda
+	AND iv.CDBMedicamento = i.CDBMedicamento
+	INNER JOIN Medicamentos m 
+    ON m.CDB = iv.CDBMedicamento;
+
+	-- atualiza UltimaVenda na tabela Medicamentos
+	UPDATE m 
+    SET m.DataUltimaVenda = GETDATE()
+    FROM Medicamentos m
+    INNER JOIN inserted i 
+	ON m.CDB = i.CDBMedicamento;
+
+	-- atualiza ValorTotal na tabela Vendas
+	UPDATE vm
+	SET vm.ValorTotal = (SELECT SUM(ValorTotal) 
+                        FROM ItensVendas iv 
+                        WHERE iv.IdVenda = vm.Id)
+	FROM VendasMedicamentos vm
+	INNER JOIN inserted i 
+	ON vm.Id = i.IdVenda;
+
+END;
 GO
 
 -- Verifica se o Fornecedor possuí mais de dois anos de fundação, se ele está ativo e se ele não está restrito. Se acontecer o insert,
@@ -84,7 +159,6 @@ BEGIN
 
 
 END;
-DROP TRIGGER ValidarCompraIngrediente;
 GO
 
 -- verifica se já não existe três registro na tabela ItensCompras relacionado ao IdCompra da inserçao; verifica se o principio ativo
@@ -141,5 +215,96 @@ BEGIN
 	INNER JOIN inserted i 
 	ON c.Id = i.IdCompra;
 END; 
-DROP TRIGGER ValidarItensCompras;
+GO
+
+-- Producoes --
+CREATE TRIGGER ValidarProducoes
+ON Producoes
+INSTEAD OF INSERT
+AS
+BEGIN
+	SET NOCOUNT ON
+	IF EXISTS (
+		SELECT 1
+		FROM inserted i
+		JOIN Medicamentos m
+		ON i.CDBMedicamento = m.CDB
+		WHERE m.Situacao = 'I'
+	)
+	BEGIN
+		THROW 50041, 'O medicamento informado não pode ser produzido, pois está inativo!', 16;
+	END
+
+	INSERT INTO Producoes (Quantidade, DataProducao, CDBMedicamento)
+	SELECT Quantidade, DataProducao, CDBMedicamento
+	FROM inserted;
+END;
+GO
+
+-- ItensDeProducao --
+CREATE TRIGGER ValidarItensProducoes
+ON ItensProducoes
+INSTEAD OF INSERT
+AS
+BEGIN
+	SET NOCOUNT ON
+
+	IF EXISTS (
+		SELECT 1
+		FROM inserted i
+		JOIN PrincipiosAtivos pa
+		ON i.IdPrincipioAtivo = pa.Id
+		WHERE pa.Situacao = 'I'
+	)
+	BEGIN
+		THROW 50041, 'Princípio Ativo está inativo!', 16;
+	END
+
+	INSERT INTO ItensProducoes (QuantidadePrincipio, IdPrincipioAtivo, IdProducao)
+	SELECT QuantidadePrincipio, IdPrincipioAtivo, IdProducao
+	FROM inserted;
+
+END;
+GO
+
+-- // TRIGGERS DE DELETE \\ --
+
+-- Clientes --
+CREATE TRIGGER DeletarCliente
+ON Clientes
+INSTEAD OF DELETE
+AS
+BEGIN
+	THROW 50020, 'Operação DELETE não autorizada na tabela Clientes', 16;	
+END;
+GO
+
+-- Fornecedores --
+CREATE TRIGGER DeletarFornecedor
+ON Fornecedores
+INSTEAD OF DELETE
+AS
+BEGIN
+	THROW 50021, 'Operação DELETE não autorizada na tabela Fornecedores', 16;	
+END;
+GO
+
+-- PrincipioAtivo --
+CREATE TRIGGER DeletarPrincipioAtivo
+ON PrincipiosAtivos
+INSTEAD OF DELETE
+AS
+BEGIN
+	THROW 50022, 'Operação DELETE não autorizada na tabela PrincipiosAtivos', 16;	
+END;
+GO
+
+-- Medicamentos --
+CREATE TRIGGER DeletarMedicamento
+ON Medicamentos
+INSTEAD OF DELETE
+AS
+BEGIN
+	THROW 50023, 'Operação DELETE não autorizada na tabela Medicamentos', 16;	
+END;
 GO
