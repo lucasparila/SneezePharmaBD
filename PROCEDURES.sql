@@ -266,7 +266,7 @@ BEGIN
 		BEGIN TRANSACTION;
 		
 		INSERT INTO EnderecosFornecedores(Logradouro, Numero, Complemento, Bairro, Cidade, Estado, Pais, CEP, IdFornecedor) 
-		SELECT Logradouro, Numero, Complemento,Bairro, Cidade, Estado, CEP, @IdFornecedor
+		SELECT Logradouro, Numero, Complemento,Bairro, Cidade, Estado, Pais, CEP, @IdFornecedor
 		from @endereco;
 
 

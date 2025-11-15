@@ -126,6 +126,192 @@ VALUES ('AI0004', 'Dipirona S�dica', '2014-03-12', '2024-12-30', 'A');
 INSERT INTO PrincipiosAtivos (Id, Nome, DataCadastro, UltimaCompra, Situacao)
 VALUES ('AI0005', 'Cloroquina', '2010-01-05', '2020-05-15', 'I');
 
+
+-- Fornecedores --
+DECLARE @fornecedor Tipo_Fornecedores;
+DECLARE @enderecosFornecedor Tipo_EnderecosFornecedores;
+DECLARE @telefonesFornecedor Tipo_TelefonesFornecedores;
+DECLARE @emailFornecedor Tipo_EmailsFornecedores;
+
+-- fornecedor 1: empresa antiga e ativa
+INSERT INTO @fornecedor
+VALUES
+('Farm�cia Sa�de Total LTDA', 12345678000199, '2015-03-12', 'A');
+
+INSERT INTO @enderecosFornecedor
+VALUES
+('Rua das Flores', 120, 'Loja 1', 'Centro', 'S�o Paulo', 'SP', 'Brasil', 01020000);
+
+INSERT INTO @telefonesFornecedor
+VALUES 
+(55, 11, '33402515');
+
+INSERT INTO @emailFornecedor
+VALUEs
+('farmaciasaude@farmaciasaude.com');
+
+exec sp_CadastrarFornecedor @fornecedor, @enderecosFornecedor, @telefonesFornecedor, @emailFornecedor;
+
+DELETE FROM @fornecedor;
+DELETE FROM @enderecosFornecedor;
+DELETE FROM @telefonesCliente;
+DELETE FROM @emailFornecedor;
+
+-- fornecedor 2 -- 
+
+INSERT INTO @fornecedor
+VALUES
+('Drogaria Popular EIRELI', 98765432000188, '2024-09-05', NULL, '2024-09-05', 'A');
+
+INSERT INTO @enderecosFornecedor
+VALUES
+('Avenida Brasil', 502, NULL, 'Jardim Am�rica', 'Belo Horizonte', 'MG', 'Brasil', 30140000);
+
+INSERT INTO @telefonesFornecedor
+VALUES 
+(55, 31, '32041538');
+
+INSERT INTO @emailFornecedor
+VALUEs
+('drogariapopular@outlook.com');
+
+exec sp_CadastrarFornecedor @fornecedor, @enderecosFornecedor, @telefonesFornecedor, @emailFornecedor;
+
+DELETE FROM @fornecedor;
+DELETE FROM @enderecosFornecedor;
+DELETE FROM @telefonesCliente;
+DELETE FROM @emailFornecedor;
+
+-- fornecedor 3 -- 
+
+INSERT INTO @fornecedor
+VALUES
+('Distribuidora Vida Mais LTDA', 45678912000177, '2012-05-20', '2023-12-10', '2015-05-20', 'I');
+
+INSERT INTO @enderecosFornecedor
+VALUES
+('Rua do Com�rcio', 75, 'Sala 3', 'Centro', 'Curitiba', 'PR', 'Brasil', 80020000);
+
+INSERT INTO @telefonesFornecedor
+VALUES 
+(55, 41, '30451965');
+
+INSERT INTO @emailFornecedor
+VALUEs
+('vidamais@vidaltda.com');
+
+exec sp_CadastrarFornecedor @fornecedor, @enderecosFornecedor, @telefonesFornecedor, @emailFornecedor;
+
+DELETE FROM @fornecedor;
+DELETE FROM @enderecosFornecedor;
+DELETE FROM @telefonesCliente;
+DELETE FROM @emailFornecedor;
+
+-- fornecedor 4 --
+
+INSERT INTO @fornecedor
+VALUES
+('Laborat�rio S�o Lucas S/A', 22334455000166, '2018-11-02', '2025-07-01', '2019-11-02', 'A');
+
+INSERT INTO @enderecosFornecedor
+VALUES
+('Avenida Independ�ncia', 980, NULL, 'Cidade Baixa', 'Porto Alegre', 'RS', 'Brasil', 90035000);
+
+INSERT INTO @telefonesFornecedor
+VALUES 
+(NULL, NULL, '08001459835');
+
+INSERT INTO @emailFornecedor
+VALUEs
+('labsaolucas@labsl.com');
+
+exec sp_CadastrarFornecedor @fornecedor, @enderecosFornecedor, @telefonesFornecedor, @emailFornecedor;
+
+DELETE FROM @fornecedor;
+DELETE FROM @enderecosFornecedor;
+DELETE FROM @telefonesCliente;
+DELETE FROM @emailFornecedor;
+
+-- fornecedor 5 --
+
+INSERT INTO @fornecedor
+VALUES
+('BioMedic Distribuidora LTDA', 33445566000155, '2010-01-18', '2025-10-10', '2010-01-18', 'A');
+
+INSERT INTO @enderecosFornecedor
+VALUES
+('Rua das Palmeiras', 240, 'Galp�o 2', 'Boa Viagem', 'Recife', 'PE', 'Brasil', 51021000);
+
+INSERT INTO @telefonesFornecedor
+VALUES 
+(55, 81, '40531552');
+
+INSERT INTO @emailFornecedor
+VALUES
+('biomedic@gmail.com');
+
+exec sp_CadastrarFornecedor @fornecedor, @enderecosFornecedor, @telefonesFornecedor, @emailFornecedor;
+
+DELETE FROM @fornecedor;
+DELETE FROM @enderecosFornecedor;
+DELETE FROM @telefonesCliente;
+DELETE FROM @emailFornecedor;
+
+-- FornecedoresRestritos -- 
+INSERT INTO FornecedoresRestritos(IdFornecedor) VALUES (4);
+
+select * from Medicamentos;
+select * from PrincipiosAtivos;
+
+
+-- Compras --
+DECLARE @itensCompra Tipo_ItensCompras;
+
+
+-- Compra 1 --
+
+INSERT INTO @itensCompra
+VALUES
+(10, 5.50, 1, 'AI0001'),
+(10, 10.50, 1, 'AI0002'),
+(10, 24.50, 1, 'AI0003');
+-- (10, 5.50, 1, 'AI0004'); dá erro. Uma compra só pode ter três itens
+exec sp_Compras 1, @itensCompra;
+DELETE FROM @itensCompra;
+
+-- Compra 2 - empresa nova (menos de 2 anos) - d� erro
+--INSERT INTO @itensCompra
+--VALUES
+--(10, 5.50, 1, 'AI0001'),
+--(10, 10.50, 1, 'AI0002');
+--exec sp_Compras 2, @itensCompra;
+--DELETE FROM @itensCompra;
+
+-- Compra 3 -empresa inativa - da erro
+--INSERT INTO @itensCompra
+--VALUES
+--(10, 10.50, 1, 'AI0002');
+--exec sp_Compras 3, @itensCompra;
+--DELETE FROM @itensCompra;
+
+-- Compra 4 - empresa media, ativa - d� erro porque est� restrita 
+
+--INSERT INTO @itensCompra
+--VALUES
+--(10, 10.50, 1, 'AI0002'),
+--(10, 24.50, 1, 'AI0003');
+--exec sp_Compras 4, @itensCompra;
+--DELETE FROM @itensCompra;
+
+-- Compra 5 -- 
+
+INSERT INTO @itensCompra
+VALUES
+(10, 5.50, 1, 'AI0001'),
+(10, 24.50, 1, 'AI0003');
+exec sp_Compras 5, @itensCompra;
+DELETE FROM @itensCompra;
+
 -- Producoes --
 DECLARE @itensProducoes Tipo_ItensProducoes;
 
@@ -189,188 +375,3 @@ DELETE FROM @itensVenda;
 --exec sp_VendasMedicamentos 1, @itensVenda;
 --DELETE FROM @itensVenda;
 
-
--- Fornecedores --
-DECLARE @fornecedor Tipo_Fornecedores;
-DECLARE @enderecosFornecedor Tipo_EnderecosFornecedores;
-DECLARE @telefonesFornecedor Tipo_TelefonesFornecedores;
-DECLARE @emailFornecedor Tipo_EmailsFornecedores;
-
--- fornecedor 1: empresa antiga e ativa
-INSERT INTO @fornecedor
-VALUES
-('Farm�cia Sa�de Total LTDA', 12345678000199, '2015-03-12', 'A');
-
-INSERT INTO @enderecosFornecedor
-VALUES
-('Rua das Flores', 120, 'Loja 1', 'Centro', 'S�o Paulo', 'SP', 'Brasil', 01020000);
-
-INSERT INTO @telefonesFornecedor
-VALUES 
-(55, 11, '33402515');
-
-INSERT INTO @emailFornecedor
-VALUEs
-('farmaciasaude@farmaciasaude.com');
-
-exec sp_CadastrarFornecedor @fornecedor, @enderecoFornecedor, @telefonesFornecedor, @emailFornecedor;
-
-DELETE FROM @fornecedor;
-DELETE FROM @enderecosFornecedor;
-DELETE FROM @telefonesCliente;
-DELETE FROM @emailFornecedor;
-
--- fornecedor 2 -- 
-
-INSERT INTO @fornecedor
-VALUES
-('Drogaria Popular EIRELI', 98765432000188, '2024-09-05', NULL, '2024-09-05', 'A');
-
-INSERT INTO @enderecosFornecedor
-VALUES
-('Avenida Brasil', 502, NULL, 'Jardim Am�rica', 'Belo Horizonte', 'MG', 'Brasil', 30140000);
-
-INSERT INTO @telefonesFornecedor
-VALUES 
-(55, 31, '32041538');
-
-INSERT INTO @emailFornecedor
-VALUEs
-('drogariapopular@outlook.com');
-
-exec sp_CadastrarFornecedor @fornecedor, @enderecoFornecedor, @telefonesFornecedor, @emailFornecedor;
-
-DELETE FROM @fornecedor;
-DELETE FROM @enderecosFornecedor;
-DELETE FROM @telefonesCliente;
-DELETE FROM @emailFornecedor;
-
--- fornecedor 3 -- 
-
-INSERT INTO @fornecedor
-VALUES
-('Distribuidora Vida Mais LTDA', 45678912000177, '2012-05-20', '2023-12-10', '2015-05-20', 'I');
-
-INSERT INTO @enderecosFornecedor
-VALUES
-('Rua do Com�rcio', 75, 'Sala 3', 'Centro', 'Curitiba', 'PR', 'Brasil', 80020000);
-
-INSERT INTO @telefonesFornecedor
-VALUES 
-(55, 41, '30451965');
-
-INSERT INTO @emailFornecedor
-VALUEs
-('vidamais@vidaltda.com');
-
-exec sp_CadastrarFornecedor @fornecedor, @enderecoFornecedor, @telefonesFornecedor, @emailFornecedor;
-
-DELETE FROM @fornecedor;
-DELETE FROM @enderecosFornecedor;
-DELETE FROM @telefonesCliente;
-DELETE FROM @emailFornecedor;
-
--- fornecedor 4 --
-
-INSERT INTO @fornecedor
-VALUES
-('Laborat�rio S�o Lucas S/A', 22334455000166, '2018-11-02', '2025-07-01', '2019-11-02', 'A');
-
-INSERT INTO @enderecosFornecedor
-VALUES
-('Avenida Independ�ncia', 980, NULL, 'Cidade Baixa', 'Porto Alegre', 'RS', 'Brasil', 90035000);
-
-INSERT INTO @telefonesFornecedor
-VALUES 
-(NULL, NULL, '08001459835');
-
-INSERT INTO @emailFornecedor
-VALUEs
-('labsaolucas@labsl.com');
-
-exec sp_CadastrarFornecedor @fornecedor, @enderecoFornecedor, @telefonesFornecedor, @emailFornecedor;
-
-DELETE FROM @fornecedor;
-DELETE FROM @enderecosFornecedor;
-DELETE FROM @telefonesCliente;
-DELETE FROM @emailFornecedor;
-
--- fornecedor 5 --
-
-INSERT INTO @fornecedor
-VALUES
-('BioMedic Distribuidora LTDA', 33445566000155, '2010-01-18', '2025-10-10', '2010-01-18', 'A');
-
-INSERT INTO @enderecosFornecedor
-VALUES
-('Rua das Palmeiras', 240, 'Galp�o 2', 'Boa Viagem', 'Recife', 'PE', 'Brasil', 51021000);
-
-INSERT INTO @telefonesFornecedor
-VALUES 
-(55, 81, '40531552');
-
-INSERT INTO @emailFornecedor
-VALUES
-('biomedic@gmail.com');
-
-exec sp_CadastrarFornecedor @fornecedor, @enderecoFornecedor, @telefonesFornecedor, @emailFornecedor;
-
-DELETE FROM @fornecedor;
-DELETE FROM @enderecosFornecedor;
-DELETE FROM @telefonesCliente;
-DELETE FROM @emailFornecedor;
-
--- FornecedoresRestritos -- 
-INSERT INTO FornecedoresRestritos(IdFornecedor) VALUES (4);
-
-select * from Medicamentos;
-select * from PrincipiosAtivos;
-
-
--- Compras --
-DECLARE @itensCompra Tipo_ItensCompras;
-
-
--- Compra 1 --
-
-INSERT INTO @itensCompra
-VALUES
-(10, 5.50, 1, 'AI0001'),
-(10, 10.50, 1, 'AI0002'),
-(10, 24.50, 1, 'AI0003');
--- (10, 5.50, 1, 'AI0004'); dá erro. Uma compra só pode ter três itens
-exec sp_Compras 1, @itensCompra;
-DELETE FROM @itensCompra;
-
--- Compra 2 - empresa nova (menos de 2 anos) - d� erro
---INSERT INTO @itensCompra
---VALUES
---(10, 5.50, 1, 'AI0001'),
---(10, 10.50, 1, 'AI0002');
---exec sp_Compras 2, @itensCompra;
---DELETE FROM @itensCompra;
-
--- Compra 3 -empresa inativa - da erro
---INSERT INTO @itensCompra
---VALUES
---(10, 10.50, 1, 'AI0002');
---exec sp_Compras 3, @itensCompra;
---DELETE FROM @itensCompra;
-
--- Compra 4 - empresa media, ativa - d� erro porque est� restrita 
-
---INSERT INTO @itensCompra
---VALUES
---(10, 10.50, 1, 'AI0002'),
---(10, 24.50, 1, 'AI0003');
---exec sp_Compras 4, @itensCompra;
---DELETE FROM @itensCompra;
-
--- Compra 5 -- 
-
-INSERT INTO @itensCompra
-VALUES
-(10, 5.50, 1, 'AI0001'),
-(10, 24.50, 1, 'AI0003');
-exec sp_Compras 5, @itensCompra;
-DELETE FROM @itensCompra;
