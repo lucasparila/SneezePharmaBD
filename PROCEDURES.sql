@@ -177,8 +177,7 @@ GO
 CREATE OR ALTER PROCEDURE sp_CadastrarClientes
 @cliente Tipo_Clientes READONLY,
 @telefones Tipo_TelefonesClientes READONLY,
-@emails Tipo_EmailsClientes READONLY,
-@idEndereco int
+@emails Tipo_EmailsClientes READONLY
 AS
 BEGIN
 	BEGIN TRY
@@ -186,7 +185,7 @@ BEGIN
 		DECLARE @idCliente INT;
 
 		INSERT INTO Clientes(Nome, CPF, DataNascimento, DataUltimaCompra, DataCadastro,IdEndereco, Situacao)
-		SELECT Nome, CPF, DataNascimento, null,GETDATE(), @idEndereco, Situacao
+		SELECT Nome, CPF, DataNascimento, null,GETDATE(), IdEndereco, Situacao
 		FROM @cliente
 
 		SET @idCliente = SCOPE_IDENTITY();
@@ -205,53 +204,18 @@ END;
 GO
 
 
-CREATE OR ALTER PROCEDURE sp_CadastrarEnderecoClientes
-@endereco Tipo_EnderecosClientes READONLY,
-@cliente Tipo_Clientes READONLY,
-@telefones Tipo_TelefonesClientes READONLY,
-@emails Tipo_EmailsClientes READONLY
-AS
-BEGIN
-	BEGIN TRY
-		BEGIN TRANSACTION;
-		DECLARE @idEndereco INT;
-
-		INSERT INTO EnderecosClientes(Logradouro, Numero, Complemento,Bairro, Cidade, Estado, CEP) 
-		SELECT Logradouro, Numero, Complemento,Bairro, Cidade, Estado, CEP
-		from @endereco;
-
-		SET @idEndereco = SCOPE_IDENTITY();
-
-		EXEC sp_CadastrarClientes @cliente, @telefones, @emails, @idEndereco;
-
-		COMMIT TRANSACTION;
-	END TRY
-	BEGIN CATCH
-		IF @@TRANCOUNT > 0
-			ROLLBACK TRANSACTION;
-
-		THROW;
-	END CATCH
-END;
-GO
-
-
-
-
-
-
 
 CREATE OR ALTER PROCEDURE sp_CadastrarEmailsFornecedor
-@emails Tipo_EmailsClientes READONLY,
-@idCliente int
+@emails Tipo_EmailsFornecedores READONLY,
+@idFornecedor int
 AS
 BEGIN
 	BEGIN TRY
 		BEGIN TRANSACTION;
 	
 
-		INSERT INTO EmailsClientes(Email, IdCliente)
-		SELECT Email, @IdCliente
+		INSERT INTO EmailsFornecedores(Email, IdFornecedor)
+		SELECT Email, @IdFornecedor
 		FROM @emails
 
 		COMMIT TRANSACTION;
@@ -266,15 +230,15 @@ END;
 GO
 
 CREATE OR ALTER PROCEDURE sp_CadastrarTelefonesFornecedor
-@telefones Tipo_TelefonesClientes READONLY,
-@emails Tipo_EmailsClientes READONLY,
+@telefones Tipo_TelefonesFornecedores READONLY,
+@emails Tipo_EmailsFornecedores READONLY,
 @idFornecedor int
 AS
 BEGIN
 	BEGIN TRY
 		BEGIN TRANSACTION;
 
-		INSERT INTO TelefonesClientes(CodPais, DDD, Numero, IdFornecedor)
+		INSERT INTO TelefonesFornecedores(CodPais, DDD, Numero, IdFornecedor)
 		SELECT CodPais, DDD, Numero, @IdFornecedor
 		FROM @telefones
 
@@ -292,23 +256,21 @@ END;
 GO
 
 CREATE OR ALTER PROCEDURE sp_CadastrarEnderecoFornecedor
-@endereco Tipo_EnderecosClientes READONLY,
-@telefones Tipo_TelefonesClientes READONLY,
-@emails Tipo_EmailsClientes READONLY,
+@endereco Tipo_EnderecosFornecedores READONLY,
+@telefones Tipo_TelefonesFornecedores READONLY,
+@emails Tipo_EmailsFornecedores READONLY,
 @idFornecedor int
 AS
 BEGIN
 	BEGIN TRY
 		BEGIN TRANSACTION;
-		DECLARE @idEndereco INT;
-
+		
 		INSERT INTO EnderecosFornecedores(Logradouro, Numero, Complemento, Bairro, Cidade, Estado, Pais, CEP, IdFornecedor) 
 		SELECT Logradouro, Numero, Complemento,Bairro, Cidade, Estado, CEP, @IdFornecedor
 		from @endereco;
 
-		SET @idEndereco = SCOPE_IDENTITY();
 
-		EXEC sp_CadastrarTelefonesFornecedor @telefones, @emails, @idEndereco;
+		EXEC sp_CadastrarTelefonesFornecedor @telefones, @emails, @idFornecedor;
 
 		COMMIT TRANSACTION;
 	END TRY

@@ -28,6 +28,7 @@ CREATE TYPE Tipo_Clientes AS TABLE (
 	Nome VARCHAR(255) NOT NULL,
 	CPF NUMERIC(11,0) NOT NULL UNIQUE,
 	DataNascimento DATE NOT NULL,
+	IdEndereco INT NOT NULL,
 	Situacao CHAR(1) NOT NULL
 );
 
@@ -91,7 +92,7 @@ CREATE TABLE Fornecedores (
 	Situacao CHAR(1) NOT NULL
 );
 
-CREATE TYPE Fornecedores AS TABLE (
+CREATE TYPE Tipo_Fornecedores AS TABLE (
 	RazaoSocial VARCHAR(255) NOT NULL,
 	CNPJ NUMERIC(14,0) NOT NULL UNIQUE,
 	DataAbertura DATE NOT NULL,
@@ -126,7 +127,7 @@ CREATE TYPE Tipo_EnderecosFornecedores AS TABLE (
 	Pais VARCHAR(64) NOT NULL,
 	CEP NUMERIC(8,0) NOT NULL
 );
-drop Type EnderecosFornecedores;
+
 CREATE TABLE TelefonesFornecedores (
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	CodPais INT,
