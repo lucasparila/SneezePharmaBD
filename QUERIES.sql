@@ -1,4 +1,4 @@
-Use SneezePharma;
+ï»¿USE SneezePharma;
 GO
 
 -- QUERY DE CONSULTA DA TABELA Clientes --
@@ -37,9 +37,9 @@ ON e.IdFornecedor = f.Id;
 
 -- QUERY DE CONSULTA DA TABELA Vendas e ItensVendas --
 SELECT
-    v.Id'Código da Venda', v.DataVenda 'Data da Venda', v.ValorTotal'Valor Total da Venda',
+    v.Id'Cï¿½digo da Venda', v.DataVenda 'Data da Venda', v.ValorTotal'Valor Total da Venda',
 	c.CPF, c.Nome,
-    iv.Id'Código do Item',iv.CDBMedicamento'CDB do Medicamento', m.Nome'Medicamento', iv.Quantidade, iv.ValorTotal'Valor Total do Item'
+    iv.Id'Cï¿½digo do Item',iv.CDBMedicamento'CDB do Medicamento', m.Nome'Medicamento', iv.Quantidade, iv.ValorTotal'Valor Total do Item'
 FROM VendasMedicamentos v
 JOIN Clientes c
 ON c.Id = v.IdCliente
@@ -51,9 +51,9 @@ ORDER BY v.Id, iv.Id;
 
 -- QUERY DE CONSULTA DA TABELA Compras e ItensCompras --
 SELECT
-    c.Id AS 'Código da Compra', c.DataCompra AS 'Data da Compra',c.ValorTotal AS 'Valor Total da Compra',
-	f.CNPJ AS 'CNPJ', f.RazaoSocial AS 'Razão Social',
-    i.Id AS 'Código do Item',i.IdPrincipioAtivo AS 'Princípio Ativo', i.Quantidade AS 'Quantidade', i.ValorUnitario AS 'Valor Unitário', i.ValorTotal AS 'Valor Total do Item'
+    c.Id AS 'Cï¿½digo da Compra', c.DataCompra AS 'Data da Compra',c.ValorTotal AS 'Valor Total da Compra',
+	f.CNPJ AS 'CNPJ', f.RazaoSocial AS 'Razï¿½o Social',
+    i.Id AS 'Cï¿½digo do Item',i.IdPrincipioAtivo AS 'Princï¿½pio Ativo', i.Quantidade AS 'Quantidade', i.ValorUnitario AS 'Valor Unitï¿½rio', i.ValorTotal AS 'Valor Total do Item'
 FROM Compras c
 INNER JOIN Fornecedores f
 ON f.Id = c.IdFornecedor
@@ -63,9 +63,9 @@ ORDER BY c.Id, i.Id;
 
 -- QUERY DE CONSULTA DA TABELA Producoes e ItensProducoes --
 SELECT
-	p.Id, p.Quantidade 'Quantidade produzida', p.DataProducao'Data de Produção',
+	p.Id, p.Quantidade 'Quantidade produzida', p.DataProducao'Data de Produï¿½ï¿½o',
 	m.CDB, m.Nome,
-	i.Id 'Código do Item', i.IdPrincipioAtivo 'Princípio Ativo', pa.Nome, i.QuantidadePrincipio 'Quantidade de Princípio Ativo'
+	i.Id 'Cï¿½digo do Item', i.IdPrincipioAtivo 'Princï¿½pio Ativo', pa.Nome, i.QuantidadePrincipio 'Quantidade de Princï¿½pio Ativo'
 FROM Producoes p
 JOIN Medicamentos m
 ON p.CDBMedicamento = m.CDB
@@ -76,8 +76,8 @@ ON pa.Id = i.IdPrincipioAtivo
 
 -- QUERY DE CONSULTA DA TABELA Medicamentos --
 SELECT
-	m.CDB, m.Nome, m.ValorVenda'Valor de Venda', m.DataCadastro'Data de Cadastro', m.DataUltimaVenda'Data última venda',
-	s.NomeSituacao'Situação',
+	m.CDB, m.Nome, m.ValorVenda'Valor de Venda', m.DataCadastro'Data de Cadastro', m.DataUltimaVenda'Data ï¿½ltima venda',
+	s.NomeSituacao'Situaï¿½ï¿½o',
 	cm.NomeCategoria'Categoria'
 FROM Medicamentos m
 JOIN Situacoes s
@@ -87,8 +87,8 @@ ON cm.Id = m.Categoria
 
 -- QUERY DE CONSULTA DA TABELA PrincipiosAtivos --
 SELECT
-	p.Id, p.Nome, p.DataCadastro'Data de Cadastro', p.UltimaCompra'Data última compra',
-	s.NomeSituacao'Situação'
+	p.Id, p.Nome, p.DataCadastro'Data de Cadastro', p.UltimaCompra'Data ï¿½ltima compra',
+	s.NomeSituacao'Situaï¿½ï¿½o'
 FROM PrincipiosAtivos p 
 JOIN Situacoes s
 ON s.Id = p.Situacao
@@ -104,51 +104,16 @@ ON c.Id = cr.IdCliente
 -- QUERY DE CONSULTA DA TABELA FornecedoresRestritos --
 SELECT 
 	fr.Id'Id Restrito',
-	f.Id'Id Fornecedor', f.CNPJ, f.RazaoSocial'Razão Social'
+	f.Id'Id Fornecedor', f.CNPJ, f.RazaoSocial'Razï¿½o Social'
 FROM FornecedoresRestritos fr
 JOIN Fornecedores f
 ON f.Id = fr.IdFornecedor
 
--- Relatório de vendas por período --
-SELECT
-    v.Id'Código da Venda', v.DataVenda 'Data da Venda', v.ValorTotal'Valor Total da Venda',
-	c.CPF, c.Nome,
-    iv.Id'Código do Item',iv.CDBMedicamento'CDB do Medicamento', m.Nome'Medicamento', iv.Quantidade, iv.ValorTotal'Valor Total do Item'
-FROM VendasMedicamentos v
-JOIN Clientes c
-ON c.Id = v.IdCliente
-JOIN ItensVendas iv
-ON v.Id = iv.IdVenda
-JOIN Medicamentos m
-ON m.CDB = iv.CDBMedicamento
-WHERE v.DataVenda BETWEEN '2025-10-20' AND '2025-11-30'
-ORDER BY v.Id, iv.Id;
+-- Relatï¿½rio de vendas por perï¿½odo --
+EXEC sp_RelatorioVendasPorPeriodo '2025-10-20', '2025-11-30'
 
--- Relatório de medicamentos mais vendidos --
-SELECT 
-	m.CDB, m.Nome,
-	cm.NomeCategoria'Categoria',
-	SUM(iv.Quantidade)'Total Vendido'
-FROM Medicamentos m
-JOIN CategoriasMedicamentos cm
-ON cm.Id = m.Categoria
-JOIN ItensVendas iv
-ON iv.CDBMedicamento = m.CDB
-GROUP BY 
-	m.CDB, m.Nome, cm.NomeCategoria
-ORDER BY 
-	'Total Vendido' 
-DESC;
+-- Relatï¿½rio de medicamentos mais vendidos --
+EXEC sp_RelatorioMedicamentosMaisVendidos;
 
--- Relatório de compras por fornecedor --
-SELECT
-    c.Id AS 'Código da Compra', c.DataCompra AS 'Data da Compra',c.ValorTotal AS 'Valor Total da Compra',
-	f.CNPJ AS 'CNPJ', f.RazaoSocial AS 'Razão Social',
-    i.Id AS 'Código do Item',i.IdPrincipioAtivo AS 'Princípio Ativo', i.Quantidade AS 'Quantidade', i.ValorUnitario AS 'Valor Unitário', i.ValorTotal AS 'Valor Total do Item'
-FROM Compras c
-INNER JOIN Fornecedores f
-ON f.Id = c.IdFornecedor
-INNER JOIN ItensCompras i 
-ON c.Id = i.IdCompra
-WHERE f.CNPJ = '12345678000199'
-ORDER BY c.Id, i.Id;
+-- Relatï¿½rio de compras por fornecedor --
+EXEC sp_RelatorioComprasPorFornecedor '12345678000199'

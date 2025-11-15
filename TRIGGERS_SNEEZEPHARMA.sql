@@ -1,4 +1,4 @@
-USE SneezePharma;
+ï»¿USE SneezePharma;
 GO
 
 GO
@@ -18,7 +18,7 @@ BEGIN
 	)
 	BEGIN
 		ROLLBACK TRANSACTION;
-		THROW 50001, 'Cliente deve ter mínimo de 18 anos para realizar compra!', 16;
+		THROW 50001, 'Cliente deve ter mï¿½nimo de 18 anos para realizar compra!', 16;
 	END
 
 	IF EXISTS (
@@ -62,17 +62,17 @@ BEGIN
 		WHERE m.Situacao = 'I' OR p.CDBMedicamento IS NULL
 	)
 	BEGIN
-		THROW 50017, 'Medicamento está inativo ou ainda não foi produzido!', 16;
+		THROW 50017, 'Medicamento estï¿½ inativo ou ainda nï¿½o foi produzido!', 16;
 	END
 	
-	IF ((SELECT COUNT(*) FROM inserted) >= 3)
+	IF ((SELECT COUNT(*) FROM inserted) > 3)
     BEGIN
-        THROW 50020, 'Cada venda só pode ter até 3 registros de medicamentos!', 16;
+        THROW 50020, 'Cada venda sï¿½ pode ter atï¿½ 3 registros de medicamentos!', 16;
 	END
 	
 	IF ((SELECT COUNT(*) FROM inserted) < 1)
     BEGIN
-        THROW 50021, 'É necessário selecionar pelo menos 1 medicamento para realizar a venda!', 16;
+        THROW 50021, 'ï¿½ necessï¿½rio selecionar pelo menos 1 medicamento para realizar a venda!', 16;
 	END
 
 	INSERT INTO ItensVendas (Quantidade, IdVenda, CDBMedicamento)
@@ -130,8 +130,8 @@ GO
 
 
 
--- Verifica se o Fornecedor possuí mais de dois anos de fundação, se ele está ativo e se ele não está restrito. Se acontecer o insert,
--- atualiza a data do último fornecimento do Fornecedor
+-- Verifica se o Fornecedor possuï¿½ mais de dois anos de fundaï¿½ï¿½o, se ele estï¿½ ativo e se ele nï¿½o estï¿½ restrito. Se acontecer o insert,
+-- atualiza a data do ï¿½ltimo fornecimento do Fornecedor
 GO
 CREATE OR ALTER TRIGGER trg_ValidarCompraIngrediente
 ON Compras
@@ -149,7 +149,7 @@ BEGIN
 	)
 	BEGIN
 		ROLLBACK TRANSACTION;
-		THROW 50001, 'Fornecedor precisa ter no mínimo dois anos de fundação para poder realizar uma venda!', 16;
+		THROW 50001, 'Fornecedor precisa ter no mï¿½nimo dois anos de fundaï¿½ï¿½o para poder realizar uma venda!', 16;
 	END
 	
 	IF EXISTS (
@@ -174,11 +174,11 @@ BEGIN
 END;
 GO
 
--- verifica se já não existe três registro na tabela ItensCompras relacionado ao IdCompra da inserçao; verifica se o principio ativo
--- informado pa a inserçao está ativo; se a inserção der certo, atualiza a data da ultima compra na tabela PrincipiosAtivos 
+-- verifica se jï¿½ nï¿½o existe trï¿½s registro na tabela ItensCompras relacionado ao IdCompra da inserï¿½ao; verifica se o principio ativo
+-- informado pa a inserï¿½ao estï¿½ ativo; se a inserï¿½ï¿½o der certo, atualiza a data da ultima compra na tabela PrincipiosAtivos 
 -- e atualiza ValorTotal na tabela Compras
 GO
-CREATE OR ALTER TRIGGER ValidarItensCompras
+CREATE OR ALTER TRIGGER trg_ValidarItensCompras
 ON ItensCompras
 INSTEAD OF INSERT
 AS 
@@ -193,17 +193,17 @@ BEGIN
 		WHERE pa.Situacao = 'I'
 	)
 	BEGIN
-		THROW 50001, 'Princípio Ativo está inativo!', 16;
+		THROW 50001, 'Princï¿½pio Ativo estï¿½ inativo!', 16;
 	END
 
-	IF ((SELECT COUNT(*) FROM inserted) >= 3)
+	IF ((SELECT COUNT(*) FROM inserted) > 3)
     BEGIN
-        THROW 50020, 'Cada compra só pode ter até 3 registros de princípios ativos!', 16;
+        THROW 50020, 'Cada compra sï¿½ pode ter atï¿½ 3 registros de princï¿½pios ativos!', 16;
 	END
 	
 	IF ((SELECT COUNT(*) FROM inserted) < 1)
     BEGIN
-        THROW 50021, 'É necessário selecionar pelo menos 1 princípio ativo para realizar a compra!', 16;
+        THROW 50021, 'ï¿½ necessï¿½rio selecionar pelo menos 1 princï¿½pio ativo para realizar a compra!', 16;
 	END
 
 	-- insere na tabela ItensCompra
@@ -247,7 +247,7 @@ GO
 
 -- Producoes --
 GO
-CREATE OR ALTER TRIGGER ValidarProducoes
+CREATE OR ALTER TRIGGER trg_ValidarProducoes
 ON Producoes
 AFTER INSERT
 AS
@@ -262,14 +262,14 @@ BEGIN
 	)
 	BEGIN
 		ROLLBACK TRANSACTION;
-		THROW 50041, 'O medicamento informado não pode ser produzido, pois está inativo!', 16;
+		THROW 50041, 'O medicamento informado nï¿½o pode ser produzido, pois estï¿½ inativo!', 16;
 	END
 END;
 GO
 
 -- ItensDeProducao --
 GO
-CREATE OR ALTER TRIGGER ValidarItensProducoes
+CREATE OR ALTER TRIGGER trg_ValidarItensProducoes
 ON ItensProducoes
 INSTEAD OF INSERT
 AS
@@ -284,12 +284,12 @@ BEGIN
 		WHERE pa.Situacao = 'I'
 	)
 	BEGIN
-		THROW 50041, 'Princípio Ativo está inativo!', 16;
+		THROW 50041, 'Princï¿½pio Ativo estï¿½ inativo!', 16;
 	END
 
 	IF ((SELECT COUNT(*) FROM inserted) < 1)
     BEGIN
-        THROW 50021, 'É necessário selecionar pelo menos 1 princípio ativo para realizar a produção!', 16;
+        THROW 50021, 'ï¿½ necessï¿½rio selecionar pelo menos 1 princï¿½pio ativo para realizar a produï¿½ï¿½o!', 16;
 	END
 
 	INSERT INTO ItensProducoes (QuantidadePrincipio, IdPrincipioAtivo, IdProducao)
@@ -303,44 +303,44 @@ GO
 
 -- Clientes --
 GO
-CREATE OR ALTER TRIGGER DeletarCliente
+CREATE OR ALTER TRIGGER trg_DeletarCliente
 ON Clientes
 INSTEAD OF DELETE
 AS
 BEGIN
-	THROW 50020, 'Operação DELETE não autorizada na tabela Clientes', 16;	
+	THROW 50020, 'Operaï¿½ï¿½o DELETE nï¿½o autorizada na tabela Clientes', 16;	
 END;
 GO
 
 -- Fornecedores --
 GO
-CREATE OR ALTER TRIGGER DeletarFornecedor
+CREATE OR ALTER TRIGGER trg_DeletarFornecedor
 ON Fornecedores
 INSTEAD OF DELETE
 AS
 BEGIN
-	THROW 50021, 'Operação DELETE não autorizada na tabela Fornecedores', 16;	
+	THROW 50021, 'Operaï¿½ï¿½o DELETE nï¿½o autorizada na tabela Fornecedores', 16;	
 END;
 GO
 
 -- PrincipioAtivo --
 GO
-CREATE OR ALTER TRIGGER DeletarPrincipioAtivo
+CREATE OR ALTER TRIGGER trg_DeletarPrincipioAtivo
 ON PrincipiosAtivos
 INSTEAD OF DELETE
 AS
 BEGIN
-	THROW 50022, 'Operação DELETE não autorizada na tabela PrincipiosAtivos', 16;	
+	THROW 50022, 'Operaï¿½ï¿½o DELETE nï¿½o autorizada na tabela PrincipiosAtivos', 16;	
 END;
 GO
 
 -- Medicamentos --
 GO
-CREATE OR ALTER TRIGGER DeletarMedicamento
+CREATE OR ALTER TRIGGER trg_DeletarMedicamento
 ON Medicamentos
 INSTEAD OF DELETE
 AS
 BEGIN
-	THROW 50023, 'Operação DELETE não autorizada na tabela Medicamentos', 16;	
+	THROW 50023, 'Operaï¿½ï¿½o DELETE nï¿½o autorizada na tabela Medicamentos', 16;	
 END;
 GO
