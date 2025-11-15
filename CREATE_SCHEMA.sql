@@ -1,7 +1,10 @@
 USE master;
 GO
 
--- DROP DATABASE SneezePharma;
+
+--ALTER DATABASE SneezePharma SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+--DROP DATABASE SneezePharma;
+--GO
 
 CREATE DATABASE SneezePharma;
 GO
@@ -21,6 +24,14 @@ CREATE TABLE Clientes (
 	Situacao CHAR(1) NOT NULL
 );
 
+CREATE TYPE Tipo_Clientes AS TABLE (
+	Nome VARCHAR(255) NOT NULL,
+	CPF NUMERIC(11,0) NOT NULL UNIQUE,
+	DataNascimento DATE NOT NULL,
+	Situacao CHAR(1) NOT NULL
+);
+
+
 CREATE TABLE ClientesRestritos (
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	IdCliente INT NOT NULL UNIQUE
@@ -28,6 +39,16 @@ CREATE TABLE ClientesRestritos (
 
 CREATE TABLE EnderecosClientes (
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+	Logradouro VARCHAR(64) NOT NULL,
+	Numero NUMERIC(5,0),
+	Complemento VARCHAR(255),
+	Bairro VARCHAR(64) NOT NULL,
+	Cidade VARCHAR(64) NOT NULL,
+	Estado CHAR(2) NOT NULL,
+	CEP NUMERIC(8,0) NOT NULL
+);
+
+CREATE TYPE Tipo_EnderecosClientes AS TABLE (
 	Logradouro VARCHAR(64) NOT NULL,
 	Numero NUMERIC(5,0),
 	Complemento VARCHAR(255),
@@ -45,12 +66,21 @@ CREATE TABLE TelefonesClientes (
 	IdCliente INT NOT NULL
 );
 
+CREATE TYPE Tipo_TelefonesClientes AS TABLE (
+	CodPais INT NOT NULL,
+	DDD INT NOT NULL,
+	Numero NUMERIC(9,0) NOT NULL
+);
+
+
 CREATE TABLE EmailsClientes(
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	Email VARCHAR(64) NOT NULL,
 	IdCliente INT NOT NULL
 );
-
+CREATE TYPE Tipo_EmailsClientes AS TABLE (
+	Email VARCHAR(64) NOT NULL
+);
 
 -- FORNECEDORES --
 CREATE TABLE Fornecedores (
@@ -58,8 +88,13 @@ CREATE TABLE Fornecedores (
 	RazaoSocial VARCHAR(255) NOT NULL,
 	CNPJ NUMERIC(14,0) NOT NULL UNIQUE,
 	DataAbertura DATE NOT NULL,
-	DataUltimoFornecimento DATE,
-	DataCadastro DATE NOT NULL,
+	Situacao CHAR(1) NOT NULL
+);
+
+CREATE TYPE Fornecedores AS TABLE (
+	RazaoSocial VARCHAR(255) NOT NULL,
+	CNPJ NUMERIC(14,0) NOT NULL UNIQUE,
+	DataAbertura DATE NOT NULL,
 	Situacao CHAR(1) NOT NULL
 );
 
@@ -81,6 +116,17 @@ CREATE TABLE EnderecosFornecedores (
 	IdFornecedor INT NOT NULL
 );
 
+CREATE TYPE Tipo_EnderecosFornecedores AS TABLE (
+	Logradouro VARCHAR(64) NOT NULL,
+	Numero NUMERIC(5,0),
+	Complemento VARCHAR(255),
+	Bairro VARCHAR(64) NOT NULL,
+	Cidade VARCHAR(64) NOT NULL,
+	Estado CHAR(2) NOT NULL,
+	Pais VARCHAR(64) NOT NULL,
+	CEP NUMERIC(8,0) NOT NULL
+);
+drop Type EnderecosFornecedores;
 CREATE TABLE TelefonesFornecedores (
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	CodPais INT,
@@ -88,13 +134,21 @@ CREATE TABLE TelefonesFornecedores (
 	Numero VARCHAR(18) NOT NULL,
 	IdFornecedor INT NOT NULL
 );
+CREATE TYPE Tipo_TelefonesFornecedores AS TABLE (
+	CodPais INT,
+	DDD INT,
+	Numero VARCHAR(18) NOT NULL
+);
+
 
 CREATE TABLE EmailsFornecedores (
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	Email VARCHAR(64) NOT NULL,
 	IdFornecedor INT NOT NULL
 );
-
+CREATE TYPE Tipo_EmailsFornecedores AS TABLE (
+	Email VARCHAR(64) NOT NULL
+);
 
 -- VENDAS E MEDICAMENTOS -- 
 CREATE TABLE VendasMedicamentos (
@@ -112,10 +166,15 @@ CREATE TABLE ItensVendas (
 	CDBMedicamento NUMERIC(13,0) NOT NULL
 );
 
+CREATE TYPE Tipo_ItensVendas AS TABLE (
+	Quantidade INT NOT NULL,
+	CDBMedicamento NUMERIC(13,0) NOT NULL
+);
+
 CREATE TABLE Medicamentos (
 	CDB NUMERIC(13,0) NOT NULL PRIMARY KEY,
 	Nome VARCHAR(255) NOT NULL,
-	ValorVenda DECIMAL(4,2) NOT NULL,
+	ValorVenda DECIMAL(10,2) NOT NULL,
 	DataCadastro DATE NOT NULL,
 	DataUltimaVenda DATE,
 	Situacao CHAR(1) NOT NULL,
@@ -156,6 +215,10 @@ CREATE TABLE ItensProducoes (
 	IdProducao INT NOT NULL
 );
 
+CREATE TYPE Tipo_ItensProducoes AS TABLE(
+	QuantidadePrincipio INT NOT NULL,
+	IdPrincipioAtivo CHAR(6) NOT NULL
+);
 
 -- COMPRAS --
 CREATE TABLE Compras (
@@ -168,12 +231,17 @@ CREATE TABLE Compras (
 CREATE TABLE ItensCompras (
 	Id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 	Quantidade INT NOT NULL,
-	ValorUnitario DECIMAL(4,2) NOT NULL,
-	ValorTotal DECIMAL(10,2) NOT NULL,
+	ValorUnitario DECIMAL(10,2) NOT NULL,
+	ValorTotal AS (Quantidade * ValorUnitario),
 	IdCompra INT NOT NULL,
 	IdPrincipioAtivo CHAR(6) NOT NULL
 );
 
+CREATE TYPE Tipo_ItensCompras AS TABLE (
+	Quantidade INT NOT NULL,
+	ValorUnitario DECIMAL(10,2) NOT NULL,
+	IdPrincipioAtivo CHAR(6) NOT NULL
+);
 
 ---- CHAVES ESTRANGEIRAS ----
 

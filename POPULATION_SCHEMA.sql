@@ -115,6 +115,8 @@ VALUES ('Rua das Palmeiras', 240, 'Galp�o 2', 'Boa Viagem', 'Recife', 'PE', 'B
 -- FornecedoresRestritos -- 
 INSERT INTO FornecedoresRestritos(IdFornecedor) VALUES (4);
 
+select * from Medicamentos;
+select * from PrincipiosAtivos;
 
 -- EmailsFornecedores --
 INSERT INTO EmailsFornecedores VALUES
